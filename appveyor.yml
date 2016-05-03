@@ -26,11 +26,11 @@ init:
 
 environment:
   BITBUCKET_PASSWORD:
-    secure: ah/zb5h/z49InzWbvkFOrw==
+    secure: vqHQj3wH0DrNMmmeflA6Nw==
   matrix:
-  - nodejs_version: 0.10.40
-  - nodejs_version: 0.12.7
-  - nodejs_version: 4.0.0
+  - nodejs_version: 0.10.44
+  - nodejs_version: 0.12.13
+  - nodejs_version: 4.4.2
   - nodejs_version: 5.10.1
 
 install:
@@ -53,13 +53,12 @@ after_build:
 - move ffmpeg-3.0.1-win64-shared\bin\* build\Release
 - rmdir /Q /S ffmpeg-3.0.1-win64-shared
 - del /Q *.7z
-#- rmdir /Q /S .git
 - mkdir C:\Build\
 - 7z a -ttar C:\Build\node-demux_win_%nodejs_version%.tar C:\projects\node-demux\
 - 7z a -tgzip C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\Build\node-demux_win_%nodejs_version%.tar
 - move C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\projects\node-demux
 - curl -O https://bitbucket.org/tmarrinan/binary-modules/raw/master/bitbucket_upload.js
-- node bitbucket_upload.js tmarrinan %BITBUCKET_PASSWORD% tmarrinan/binary-modules node-demux_win_%nodejs_version%.tar.gz
+- curl --insecure --progress-bar --location --fail --user "renambot:%BITBUCKET_PASSWORD%" --form files=@"node-demux_win_%nodejs_version%.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/sage2/downloads/"
 - dir
 
 test: off
