@@ -9,10 +9,11 @@ env:
   global:
     - secure: "WhmiuVbdPHQO9OrPdngJCKTj3EC7J2Hy9siOhHI+oPnG2gaonXe3Q4h4F9kU1qlCaEsKQVuF2mD/vtWwnOLHjfMMdoijlD9qm7+CM0hWxMmTKyyGutvm1tqrnthIYDLjljqwiFVd91U31HtyWU9UhSJwx+oaXozS2eBtX9UYcMjm7Q0etLrz+3YNxWNpPOPY4aR8a82hPWSpFbiXn4w4OcLP12gDmt6OX5vYf207gvIYfZ9ad1FH5FCjUU4HRkrA6sDlhoXJpNTdMUbiW2v2v5ZvBYq8miBmvxYfdtx6reidEfUnEBwRTfuaWj1ZjPnQDigfGgtpy+WrkebigiXueayJMORlexiJHcDVPP6RUuBLuLTAjgEceltvu5shLUntnD7sLZffXwG7e2P1MZgHyQcntaWpm8U77L5/K6r5yPekHHljlCGid37M0h1yMbx/ULLbal82KlGmXLkT60As1QVTQrL/9U2/Hy9Vc3pLEsHBY4mE7aRPzJBVrcYw84o0smtw7uxtzMieHpMfCRXu4oZu+WRQH1IqN38y3fd0wcDNJBcDpzupgcz7DiVmUd0R+dnwOctAgGm7ZXuOP3yJ81/ofC6NKcJAVlEb2XgE8zFeiS1df90LmGAIXF0GwHbLSI99Xfn4oi9V86dGb/DBQ47/jvsTYyYep552o4NGEes="
   matrix:
-    - NODE_VERSION="0.10.40"
-    - NODE_VERSION="0.12.7"
-    - NODE_VERSION="4.2.3"
-    - NODE_VERSION="5.1.1"
+    - NODE_VERSION="0.10.44"
+    - NODE_VERSION="0.12.13"
+    - NODE_VERSION="4.4.2"
+    - NODE_VERSION="5.10.1"
+    - NODE_VERSION="6.0.0"
 
 before_install:
   - brew update
@@ -33,6 +34,6 @@ script:
   - tar czf /Users/travis/build/renambot-uic/Build/node-demux_mac_${NODE_VERSION}.tar.gz node-demux
   - cd node-demux
   - mv /Users/travis/build/renambot-uic/Build/node-demux_mac_${NODE_VERSION}.tar.gz .
-  - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"node-demux_mac_${NODE_VERSION}.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/sage2/downloads/"
+  - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"node-demux_mac_${NODE_VERSION}.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
   - ls -a
 
