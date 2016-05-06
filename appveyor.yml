@@ -59,7 +59,6 @@ after_build:
 - 7z a -ttar C:\Build\node-demux_win_%nodejs_version%.tar C:\projects\node-demux\
 - 7z a -tgzip C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\Build\node-demux_win_%nodejs_version%.tar
 - move C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\projects\node-demux
-- curl -O https://bitbucket.org/tmarrinan/binary-modules/raw/master/bitbucket_upload.js
 - curl --insecure --progress-bar --location --fail --user "renambot:%BITBUCKET_PASSWORD%" --form files=@"node-demux_win_%nodejs_version%.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/sage2/downloads/"
 - dir
 
