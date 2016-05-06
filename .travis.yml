@@ -7,7 +7,7 @@ git:
 
 env:
   global:
-    - secure: "KL51WoF2eBTPuPSnUp/GDmift25LqsntrHXNI9vtDWcvPd7lSTeHdNsH7po/VU6PFFkLIVdZcw+fxgmvSZDY8n379RkL7NOaLoHo1X3EZUQYioA/ROZz2eZ42jiPPsxZTdbBkpkGgkRqU9YcnWVWzqaKNqX82cqF/UQ197ZlXoXWhF0WLMNvdkliTz2Q46TZXLW5/V8+mVRYxU8bplwCHi9SZIUqXtE5L/iz6HgZKGGwGeCRZxulAiUUYgF89sj34iP0Ia9dpG1PonLUZNl5nyxex9dQ2aDFebVnTO7Z0taSurJNBMFL4ptxE9G5puV7IUCQFaC6Wc/TOuGGaZToOxJDW6NbnDcaipPTad85JpGNMBIV0sCQQ89pBSGC/tODAsrJy8F6wdOej7WqbHVlbOsMdhKi3HAQZJZp7UdQfJwdq0TXsobqfImgD8nd1zdgMBmdPsyc6aA9I20i8+l/okfAphf5rTumpmCZru7XSAZFEINF5skHtqQm5JuGV5JDtQHa63Bf/pjYIYTgw1gFFoJG2tYFUM3nMNPswzRYuKBvllERjH1FwJ5UNcyP8KZVdMGLGFSt6cge92gGrfM7Y3jduUnDNV3uTP9TJ4dcPN5/MTt8iOk6yJGrYrQ4Qn5QhMOqmFJuM4YVW50gmUQw5XZmFfpolV2NYafKIpOEU1U="
+    - secure: "onieVGY07aLfwQPw8T4Gg7TnBfvd7GWhZ17XsT0jdH5JCkcIXkVsx8pirH76zj27X3tIE2v1ZeIzK3v6x186p0Cd3wRpODKDlqTxfi6CQa0sazIORhrs15mTABrxuPSJ9kB5+5RB9UHvlpKS2oMvs1HBf88SPZUE7wUuQnA2Zne9jvIuwPxMOwwbYh5VAQZTP3EAhhAhzjpey+GLyzJn5tY+J5j9RHhVmtaoNtpr7nlK3D+pfQ8bjzLFuefap2pwZvWfvbXGHG2Kudg3BK7649oEtZsjIfxclalYaYaiO7vbisVxR1hDKjsGUHkVfFXHvb/Dpr6w+K0KMVYm/LqM6ZW0PBXn7r2pf0j3rlTDea7r7zCz0PObeW7faZO/9tW6fTzX+HjAKlBF+LL9loRBxYv6JcRFL+mNzRBFQLAdClRxXqoAD9Whja6FJF38ujQWi0VLR8sSSamP1Jceu8rDj08pezHy4HbofDwyEnBnQVDc4YcLQfB8au8jJIPLMkKCp9vxZfIDhqh8vLT5pJi18VJopO94ulVzxk1Y/AEKOQKYOmpg5qy34SWSFe7kY9dmNjla65BcyV8PMzzCNuPxaAn3BNXSGWF28CEX1dgl3kc8RZCMlRFm7HP5XbZV9oE/7h0IyL1CJuczEdmyE/HmXuSI9nnz1OveAS7dYTZ/stU="
   matrix:
     - NODE_VERSION="0.10.40"
     - NODE_VERSION="0.12.7"
@@ -28,12 +28,11 @@ install:
   - npm install
 
 script:
-  - mkdir /Users/travis/build/tmarrinan/Build
+  - mkdir /Users/travis/build/renambot/Build
   - cd ..
-  - tar czf /Users/travis/build/tmarrinan/Build/node-demux_mac_${NODE_VERSION}.tar.gz node-demux
+  - tar czf /Users/travis/build/renambot/Build/node-demux_mac_${NODE_VERSION}.tar.gz node-demux
   - cd node-demux
-  - mv /Users/travis/build/tmarrinan/Build/node-demux_mac_${NODE_VERSION}.tar.gz .
-  - curl -O https://bitbucket.org/tmarrinan/binary-modules/raw/master/bitbucket_upload.js
-  - node bitbucket_upload.js tmarrinan $BITBUCKET_PASSWORD tmarrinan/binary-modules node-demux_mac_${NODE_VERSION}.tar.gz
+  - mv /Users/travis/build/renambot/Build/node-demux_mac_${NODE_VERSION}.tar.gz .
+  - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"node-demux_mac_${NODE_VERSION}.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/sage2/downloads/"
   - ls -a
 
