@@ -28,11 +28,11 @@ install:
   - npm install
 
 script:
-  - mkdir /Users/travis/build/renambot/Build
+  - mkdir /Users/travis/build/renambot-uic/Build
   - cd ..
-  - tar czf /Users/travis/build/renambot/Build/node-demux_mac_${NODE_VERSION}.tar.gz node-demux
+  - tar czf /Users/travis/build/renambot-uic/Build/node-demux_mac_${NODE_VERSION}.tar.gz node-demux
   - cd node-demux
-  - mv /Users/travis/build/renambot/Build/node-demux_mac_${NODE_VERSION}.tar.gz .
+  - mv /Users/travis/build/renambot-uic/Build/node-demux_mac_${NODE_VERSION}.tar.gz .
   - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"node-demux_mac_${NODE_VERSION}.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/sage2/downloads/"
   - ls -a
 
