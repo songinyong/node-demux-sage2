@@ -24,6 +24,7 @@ NAN_MODULE_INIT(VideoDemux::Init) {
 	// Prototype
 	Nan::SetPrototypeMethod(tpl, "LoadVideo",     LoadVideo);
 	Nan::SetPrototypeMethod(tpl, "StartDemuxing", StartDemuxing);
+	Nan::SetPrototypeMethod(tpl, "DemuxFrame",    DemuxFrame);
 	Nan::SetPrototypeMethod(tpl, "PauseDemuxing", PauseDemuxing);
 	Nan::SetPrototypeMethod(tpl, "StopDemuxing",  StopDemuxing);
 	Nan::SetPrototypeMethod(tpl, "SeekVideo",     SeekVideo);
@@ -60,10 +61,14 @@ NAN_METHOD(VideoDemux::LoadVideo) {
 	}
 	
 	bool dff = false;
+	std::string colorspace = "default";
 	if (info.Length() >= 2) {
 		Local<Object> obj = info[1]->ToObject();
 		if (obj->Has(Nan::New<String>("decodeFirstFrame").ToLocalChecked())) {
 			dff = obj->Get(Nan::New<String>("decodeFirstFrame").ToLocalChecked())->BooleanValue();
+		}
+		if (obj->Has(Nan::New<String>("colorspace").ToLocalChecked())) {
+			colorspace = *Nan::Utf8String(obj->Get(Nan::New<String>("colorspace").ToLocalChecked()));
 		}
 	}
 	
@@ -71,7 +76,7 @@ NAN_METHOD(VideoDemux::LoadVideo) {
 	obj->baton->action = DA_LOAD;
 	if(obj->baton->state == DS_IDLE) {
         obj->baton->state = DS_LOAD;
-		Nan::AsyncQueueWorker(new LoadWorker(obj->baton, *Nan::Utf8String(info[0]), dff));
+		Nan::AsyncQueueWorker(new LoadWorker(obj->baton, *Nan::Utf8String(info[0]), dff, colorspace));
 	}
 	
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -92,6 +97,24 @@ NAN_METHOD(VideoDemux::StartDemuxing) {
 	
 	info.GetReturnValue().Set(Nan::Undefined());
 }
+
+
+NAN_METHOD(VideoDemux::DemuxFrame) {
+	Nan::HandleScope();
+	
+	VideoDemux *obj = ObjectWrap::Unwrap<VideoDemux>(info.This());
+	obj->baton->action = DA_NEXT_FRAME;
+	if(obj->baton->state == DS_IDLE) {
+        obj->baton->state = DS_DEMUX;
+		obj->baton->demux_start = uv_now(uv_default_loop());
+		obj->baton->video_start = obj->baton->current_frame * obj->baton->frame_time * 1000.0;
+		obj->baton->m_Start();
+		Nan::AsyncQueueWorker(new DemuxWorker(obj->baton, true));
+	}
+	
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
 
 NAN_METHOD(VideoDemux::PauseDemuxing) {
 	Nan::HandleScope();

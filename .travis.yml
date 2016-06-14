@@ -3,7 +3,7 @@ os: osx
 language: objective-c
 
 git:
-  depth: 5
+  depth: 1
 
 env:
   global:

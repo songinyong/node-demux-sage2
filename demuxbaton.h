@@ -5,6 +5,9 @@ extern "C" {
 	#include <libavcodec/avcodec.h>
 	#include <libavformat/avformat.h>
 	#include <libavutil/imgutils.h>
+	#include <libavutil/pixfmt.h>
+	#include <libswscale/swscale.h>
+	#include <libavcodec/avcodec.h>
 }
 #include <string>
 #include <node.h>
@@ -14,7 +17,7 @@ extern "C" {
 using namespace v8;
 
 enum DemuxState  { DS_IDLE, DS_LOAD, DS_DEMUX, DS_SEEK };
-enum DemuxAction { DA_NONE, DA_LOAD, DA_PLAY, DA_PAUSE, DA_SEEK, DA_END };
+enum DemuxAction { DA_NONE, DA_LOAD, DA_PLAY, DA_NEXT_FRAME, DA_PAUSE, DA_SEEK, DA_END };
 
 class DemuxBaton {
 	public:
@@ -64,6 +67,16 @@ class DemuxBaton {
 		
 		// flag for whether or not to decode one frame after load / seek
 		bool decode_first_frame;
+
+		// desired colorspace for frames: 'yuv420p' or 'rgb888' (or 'default' -> do not convert)
+		std::string colorspace;
+		
+		// actual colorspace of frames
+		AVPixelFormat src_pix_fmt;
+
+		// scale context and output image buffer (if colorspace conversion is needed)
+		struct SwsContext *img_convert_ctx;
+		uint8_t *output_buffer;
 		
 		// error message from thread
 		std::string error;

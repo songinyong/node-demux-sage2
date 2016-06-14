@@ -19,6 +19,10 @@ function demux() {
 	this.play = function() {
 		this.video.StartDemuxing();
 	};
+
+	this.nextFrame = function() {
+		this.video.DemuxFrame();
+	};
 	
 	this.pause = function(cb) {
 		this.video.PauseDemuxing(cb);

@@ -50,6 +50,7 @@ void DemuxBaton::m_MetaData() {
 		meta->Set(Nan::New<String>("frame_rate").ToLocalChecked(),           Nan::New<Number>(frame_rate));
 		meta->Set(Nan::New<String>("duration").ToLocalChecked(),             Nan::New<Number>(duration));
 		meta->Set(Nan::New<String>("pixel_format").ToLocalChecked(),         Nan::New<String>(format.c_str()).ToLocalChecked());
+		meta->Set(Nan::New<String>("convert_format").ToLocalChecked(),       Nan::New<String>(colorspace.c_str()).ToLocalChecked());
 		Local<Value> argv[1] = {meta};
 		OnMetaData->Call(1, argv);
 	}
@@ -78,8 +79,30 @@ void DemuxBaton::m_Frame(VideoFrame *frm) {
 		uint32_t size = frm->getBufferSize();
 		const char *buf = reinterpret_cast<const char*>(frm->getBuffer());
 		int64_t frameIdx = frm->getFrameIndex();
-		Local<Value> argv[2] = { Nan::New<Number>(frameIdx), Nan::CopyBuffer(buf, size).ToLocalChecked() };
-		OnFrame->Call(2, argv);
+		
+		if (colorspace == "rgb24" && format != "rgb24") {
+			int output_bufferSize = avpicture_get_size(AV_PIX_FMT_RGB24, width, height);
+			uint8_t *outData[1] = { output_buffer }; // RGB24 have one plane
+			int outLinesize[1] = { 3 * width }; // RGB24 stride
+
+			sws_scale(img_convert_ctx, frame->data, frame->linesize, 0, height, outData, outLinesize);
+
+			Local<Value> argv[2] = { Nan::New<Number>(frameIdx), Nan::CopyBuffer((const char *)output_buffer, output_bufferSize).ToLocalChecked() };
+			OnFrame->Call(2, argv);
+		}
+		else if (colorspace == "yuv420p" && format != "yuv420p") {
+			int output_bufferSize = avpicture_get_size(AV_PIX_FMT_YUV420P, width, height);
+			uint8_t *outData[3] = { output_buffer, output_buffer+(width*height), output_buffer+(width*height)+((width/2)*(height/2))}; // YUV420P have three planes
+			int outLinesize[3] = { width, width/2, width/2 }; // YUV420P stride
+			sws_scale(img_convert_ctx, frame->data, frame->linesize, 0, height, outData, outLinesize);
+
+			Local<Value> argv[2] = { Nan::New<Number>(frameIdx), Nan::CopyBuffer((const char *)output_buffer, output_bufferSize).ToLocalChecked() };
+			OnFrame->Call(2, argv);
+		}
+		else {
+			Local<Value> argv[2] = { Nan::New<Number>(frameIdx), Nan::CopyBuffer(buf, size).ToLocalChecked() };	
+			OnFrame->Call(2, argv);
+		}
 	}
 }
 
@@ -125,10 +148,23 @@ void DemuxBaton::OpenVideoFile() {
 	if(display_aspect_ratio <= 0) display_aspect_ratio = (double)width / (double)height;
 	if(num_frames <= 0) num_frames = (int64_t)floor((duration * frame_rate) + 0.5);
 	
+	src_pix_fmt = video_dec_ctx->pix_fmt;
+
 	if      (video_dec_ctx->pix_fmt == AV_PIX_FMT_YUV420P) format = "yuv420p";
 	else if (video_dec_ctx->pix_fmt == AV_PIX_FMT_RGB24)   format = "rgb24";
 	else if (video_dec_ctx->pix_fmt == AV_PIX_FMT_RGB32)   format = "rgb32";
 	else                                                   format = "unknown";
+
+	if (colorspace == "rgb24" && format != "rgb24") {
+		output_buffer = (uint8_t*)av_malloc(avpicture_get_size(AV_PIX_FMT_RGB24, width, height));
+		img_convert_ctx = sws_getContext(width, height, src_pix_fmt, width, height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL); 
+		if (img_convert_ctx == NULL) { error = "could not convert colorspace"; return; }
+	}
+	else if (colorspace == "yuv420p" && format != "yuv420p") {
+		output_buffer = (uint8_t*)av_malloc(avpicture_get_size(AV_PIX_FMT_YUV420P, width, height));
+		img_convert_ctx = sws_getContext(width, height, src_pix_fmt, width, height, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL); 
+		if (img_convert_ctx == NULL) { error = "could not convert colorspace"; return; }
+	}
 
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)	
 	frame = av_frame_alloc();
