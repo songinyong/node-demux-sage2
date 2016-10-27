@@ -27,7 +27,7 @@ init:
 
 environment:
   BITBUCKET_PASSWORD:
-    secure: vqHQj3wH0DrNMmmeflA6Nw==
+    secure: knMJcKTWQPaMlmpY298Z4w==
   matrix:
   - nodejs_version: 0.10.44
   - nodejs_version: 0.12.13
