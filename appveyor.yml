@@ -46,7 +46,7 @@ install:
 
     node -v
 
-    npm install --production --msvs_version=2013
+    npm install --no-save --production --msvs_version=2013
 
 build:
   parallel: true
