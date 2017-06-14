@@ -12,6 +12,7 @@ shallow_clone: true
 
 
 init:
+- set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
 - curl -LsSO http://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-3.3.1-win64-dev.7z
 - 7z x ffmpeg-3.3.1-win64-dev.7z -o.
 - mkdir C:\Dev\
