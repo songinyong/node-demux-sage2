@@ -35,6 +35,7 @@ environment:
   - nodejs_version: 5.10.1
   - nodejs_version: 6.0.0
   - nodejs_version: 7.0.0
+  - nodejs_version: 8.1.0
 
 install:
 - ps: >-
