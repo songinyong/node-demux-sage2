@@ -30,12 +30,12 @@ environment:
   BITBUCKET_PASSWORD:
     secure: knMJcKTWQPaMlmpY298Z4w==
   matrix:
-  - nodejs_version: 0.10.48
-  - nodejs_version: 0.12.18
-  - nodejs_version: 4.8.3
-  - nodejs_version: 5.12.0
-  - nodejs_version: 6.9.5
-  - nodejs_version: 7.9.0
+  # - nodejs_version: 0.10.48
+  # - nodejs_version: 0.12.18
+  # - nodejs_version: 4.8.3
+  # - nodejs_version: 5.12.0
+  # - nodejs_version: 6.9.5
+  # - nodejs_version: 7.9.0
   - nodejs_version: 8.1.0
 
 install:
@@ -46,8 +46,8 @@ install:
 
     node -v
 
-    npm install --no-save --production --msvs_version=2013
-
+    npm install --no-save --msvs_version=2013
+    npm run package
 build:
   parallel: true
   verbosity: minimal
@@ -61,8 +61,12 @@ after_build:
 - mkdir C:\Build\
 - 7z a -ttar C:\Build\node-demux_win_%nodejs_version%.tar C:\projects\node-demux\
 - 7z a -tgzip C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\Build\node-demux_win_%nodejs_version%.tar
+- 7z a -ttar C:\Build\node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar C:\projects\node-demux\build\Release
+- 7z a -tgzip C:\Build\node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar.gz C:\Build\node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar
 - move C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\projects\node-demux
+- move C:\Build\node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar.gz C:\projects\node-demux
 - curl --insecure --progress-bar --location --fail --user "renambot:%BITBUCKET_PASSWORD%" --form files=@"node-demux_win_%nodejs_version%.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
+- curl --insecure --progress-bar --location --fail --user "renambot:%BITBUCKET_PASSWORD%" --form files=@"node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
 - dir
 
 test: off
