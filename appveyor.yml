@@ -46,9 +46,14 @@ install:
 
     node -v
 
-    npm install --no-save --msvs_version=2013
+    npm config set package-lock=false
+
+    npm config set save=false
+
+    npm install --msvs_version=2013
 
     npm run package
+
 build:
   parallel: true
   verbosity: minimal
