@@ -47,6 +47,7 @@ install:
     node -v
 
     npm install --no-save --msvs_version=2013
+
     npm run package
 build:
   parallel: true
