@@ -9,10 +9,10 @@ env:
   global:
     - secure: "S9+Eqi4RmwWMEKQmzwu3z3CT2XR0RMouxlEBz3rZ5u1OzTDhdqiBaLMbzWP6Mw29HT9W4nbWiWMYngSxPfPO3psatt4GWCToz37D9Z8DQMZ5PRwJFv2KUuwadzJA0RI77RSAiRL/dnzNkE9NRRK/adnIEyKZSruDBjYMKrNFf2TKOJTjwaFt+dkBUlFoXNS9WsjjkJGWD64B7z9/IgPuIdZlbhG0kzrTr+daE37yy+hgwQcLooqEy9rbrM45zdsBDfWjgXLXDdxHZ3fEaWtOVcFp+ywK9tRM362i8P2bRHSuX8whvNe/hdh370ShnOc4jyaktJZcswLJKPLFjVnnd66UZEi6PNzuZmthZTzx9r18ZPQ1f7BLs6CYg8yQhs9TIf9yz2BkiexSpAY7xmWyA/rmmbvaPZOi5i/Nso7b9XftqobcJzNa0yhXQ321uupvU9xBdcQYsGiFyiLxMgSrhAc0qXW6Gr1bM1BWzLBcGcAe+rQxei2wwrqRNpNAF40FLiatDpUB1L8WCKO93sxSNiZI1VqwqWSCh7VVcVQbKZ6X7/oYfS265LBEsGIrYtIJYXaMU2V5Y23MDoP8pyEFUpNTMvunIPOnoBAwE+zSmITTBornpFHArVNxXVi0hk+FXlw+nSNfA7R0TDsR7CpoTRkoOVkI9ECxiqjV9qd4tZQ="
   matrix:
-    - NODE_VERSION="0.10.48"
-    - NODE_VERSION="0.12.18"
+    # - NODE_VERSION="0.10.48"
+    # - NODE_VERSION="0.12.18"
+    # - NODE_VERSION="5.12.0"
     - NODE_VERSION="4.8.3"
-    - NODE_VERSION="5.12.0"
     - NODE_VERSION="6.9.5"
     - NODE_VERSION="7.9.0"
     - NODE_VERSION="8.1.0"
@@ -29,9 +29,12 @@ install:
   - node -v
   - npm -v
   - npm install
+  - npm run rebuild
 
 script:
   - pwd
+  - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"build/stage/*.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
+  - rm -fr build/stage/
   - mkdir /Users/travis/build/renambot-uic/Build
   - cd ..
   - rm -fr ./node-demux/.git
