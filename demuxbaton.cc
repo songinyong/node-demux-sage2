@@ -81,8 +81,11 @@ void DemuxBaton::m_Frame(VideoFrame *frm) {
 		int64_t frameIdx = frm->getFrameIndex();
 		
 		if (colorspace == "rgb24" && format != "rgb24") {
-			// int output_bufferSize = avpicture_get_size(AV_PIX_FMT_RGB24, width, height);
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)	
 			int output_bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1);
+#else
+			int output_bufferSize = avpicture_get_size(AV_PIX_FMT_RGB24, width, height);
+#endif
 
 			uint8_t *outData[1] = { output_buffer }; // RGB24 have one plane
 			int outLinesize[1] = { 3 * width }; // RGB24 stride
@@ -93,8 +96,13 @@ void DemuxBaton::m_Frame(VideoFrame *frm) {
 			OnFrame->Call(2, argv);
 		}
 		else if (colorspace == "yuv420p" && format != "yuv420p") {
-			// int output_bufferSize = avpicture_get_size(AV_PIX_FMT_YUV420P, width, height);
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)	
 			int output_bufferSize = av_image_get_buffer_size(AV_PIX_FMT_YUV420P, width, height, 1);
+#else
+			int output_bufferSize = avpicture_get_size(AV_PIX_FMT_YUV420P, width, height);
+#endif
+
 			uint8_t *outData[3] = { output_buffer, output_buffer+(width*height), output_buffer+(width*height)+((width/2)*(height/2))}; // YUV420P have three planes
 			int outLinesize[3] = { width, width/2, width/2 }; // YUV420P stride
 			sws_scale(img_convert_ctx, frame->data, frame->linesize, 0, height, outData, outLinesize);
@@ -158,14 +166,21 @@ void DemuxBaton::OpenVideoFile() {
 	else                                                   format = "unknown";
 
 	if (colorspace == "rgb24" && format != "rgb24") {
-		// output_buffer = (uint8_t*)av_malloc(avpicture_get_size(AV_PIX_FMT_RGB24, width, height));
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)	
 		output_buffer = (uint8_t*)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1));
+#else
+		output_buffer = (uint8_t*)av_malloc(avpicture_get_size(AV_PIX_FMT_RGB24, width, height));
+#endif
 		img_convert_ctx = sws_getContext(width, height, src_pix_fmt, width, height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL); 
 		if (img_convert_ctx == NULL) { error = "could not convert colorspace"; return; }
 	}
 	else if (colorspace == "yuv420p" && format != "yuv420p") {
-		// output_buffer = (uint8_t*)av_malloc(avpicture_get_size(AV_PIX_FMT_YUV420P, width, height));
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
 		output_buffer = (uint8_t*)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_YUV420P, width, height, 1));
+#else
+		output_buffer = (uint8_t*)av_malloc(avpicture_get_size(AV_PIX_FMT_YUV420P, width, height));
+#endif
+
 		img_convert_ctx = sws_getContext(width, height, src_pix_fmt, width, height, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL); 
 		if (img_convert_ctx == NULL) { error = "could not convert colorspace"; return; }
 	}
@@ -187,18 +202,18 @@ void DemuxBaton::OpenVideoFile() {
 int DemuxBaton::OpenCodecContext(int *stream_idx, AVFormatContext *fctx) {
 	int ret;
     AVStream *st;
-    // AVCodecContext *cctx = NULL;
     AVCodec *codec = NULL;
     ret = av_find_best_stream(fctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
     if (ret < 0) { error = "could not find video stream in input file"; return -1; }
 	*stream_idx = ret;
 	st = fctx->streams[*stream_idx];
 	// find decoder for the stream
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
 	codec = avcodec_find_decoder(st->codecpar->codec_id);
 	if (!codec) { error = "failed to find codec"; return -1; };
 
 	// Allocate a codec context for the decoder
-    video_dec_ctx = avcodec_alloc_context3(codec);
+	video_dec_ctx = avcodec_alloc_context3(codec);
 	if (!video_dec_ctx) { error = "Failed to allocate the codec context"; return -1; };
 
 	// Copy codec parameters from input stream to output codec context
@@ -206,6 +221,13 @@ int DemuxBaton::OpenCodecContext(int *stream_idx, AVFormatContext *fctx) {
 	if (ret < 0) { error = "Failed to copy codec parameters to decoder context"; return -1; };
 
 	ret = avcodec_open2(video_dec_ctx, codec, NULL);
+#else
+	AVCodecContext *cctx = NULL;
+	cctx = st->codec;
+	codec = avcodec_find_decoder(cctx->codec_id);
+	if (!codec) { error = "failed to find codec"; return -1; };
+	ret = avcodec_open2(cctx, codec, NULL);
+#endif
 	if (ret < 0) { error = "failed to open codec"; return -1; }
 	
     return 0;
@@ -227,7 +249,11 @@ void DemuxBaton::DecodeFrame() {
 			pkt.data += ret;
 			pkt.size -= ret;
 		} while (pkt.size > 0 && !got_frame);
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
 		if (pkt.size <= 0) av_packet_unref(&orig_pkt);
+#else
+		if (pkt.size <= 0) av_free_packet(&orig_pkt);
+#endif
         if (got_frame) return;
 	}
 	
@@ -243,6 +269,7 @@ int DemuxBaton::DecodePacket(int *got_frame, int cached) {
     int decoded = pkt.size;
     if (pkt.stream_index == video_stream_idx) {
 		// decode video frame
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
 		ret = avcodec_send_packet(video_dec_ctx, &pkt);
 		if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
 			*got_frame = 0;
@@ -265,6 +292,10 @@ int DemuxBaton::DecodePacket(int *got_frame, int cached) {
 			return -1;
 		}
 		*got_frame = 1;
+#else
+		ret = avcodec_decode_video2(video_dec_ctx, frame, got_frame, &pkt);
+		if(ret < 0) { error = "could not decode video frame"; return -1; }
+#endif
 
 		if (*got_frame) {
 			if (frame->pkt_dts >= 0) {
