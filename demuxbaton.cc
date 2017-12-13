@@ -145,6 +145,10 @@ void DemuxBaton::OpenVideoFile() {
 	ret = OpenCodecContext(&video_stream_idx, fmt_ctx);
 	if (ret < 0) { return; }
 	video_stream = fmt_ctx->streams[video_stream_idx];
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
+#else
+        video_dec_ctx = video_stream->codec;
+#endif
 
 	// get video metadata
 	width  = video_dec_ctx->width;
