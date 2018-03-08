@@ -24,8 +24,8 @@
     "host": "https://bitbucket.org/sage2/binaries/downloads/"
   },
   "devDependencies": {
-    "node-pre-gyp": "^0.6.30",
-    "node-pre-gyp-github": "^1.3.1"
+    "node-pre-gyp": "latest",
+    "node-pre-gyp-github": "latest"
   },
   "keywords": [
     "video",
