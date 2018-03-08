@@ -53,7 +53,7 @@ install:
 
     npm config set save=false
 
-    npm install --msvs_version=2013
+    npm install --msvs_version=2017
 
     npm run rebuild
 
