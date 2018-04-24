@@ -81,7 +81,7 @@ void DemuxBaton::m_Frame(VideoFrame *frm) {
 		int64_t frameIdx = frm->getFrameIndex();
 		
 		if (colorspace == "rgb24" && format != "rgb24") {
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)	
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(56,26,100)	
 			int output_bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1);
 #else
 			int output_bufferSize = avpicture_get_size(AV_PIX_FMT_RGB24, width, height);
@@ -97,7 +97,7 @@ void DemuxBaton::m_Frame(VideoFrame *frm) {
 		}
 		else if (colorspace == "yuv420p" && format != "yuv420p") {
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)	
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(56,26,100)	
 			int output_bufferSize = av_image_get_buffer_size(AV_PIX_FMT_YUV420P, width, height, 1);
 #else
 			int output_bufferSize = avpicture_get_size(AV_PIX_FMT_YUV420P, width, height);
@@ -145,7 +145,7 @@ void DemuxBaton::OpenVideoFile() {
 	ret = OpenCodecContext(&video_stream_idx, fmt_ctx);
 	if (ret < 0) { return; }
 	video_stream = fmt_ctx->streams[video_stream_idx];
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(56,26,100)
 #else
         video_dec_ctx = video_stream->codec;
 #endif
@@ -170,7 +170,7 @@ void DemuxBaton::OpenVideoFile() {
 	else                                                   format = "unknown";
 
 	if (colorspace == "rgb24" && format != "rgb24") {
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)	
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(56,26,100)	
 		output_buffer = (uint8_t*)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1));
 #else
 		output_buffer = (uint8_t*)av_malloc(avpicture_get_size(AV_PIX_FMT_RGB24, width, height));
@@ -179,7 +179,7 @@ void DemuxBaton::OpenVideoFile() {
 		if (img_convert_ctx == NULL) { error = "could not convert colorspace"; return; }
 	}
 	else if (colorspace == "yuv420p" && format != "yuv420p") {
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(56,26,100)
 		output_buffer = (uint8_t*)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_YUV420P, width, height, 1));
 #else
 		output_buffer = (uint8_t*)av_malloc(avpicture_get_size(AV_PIX_FMT_YUV420P, width, height));
@@ -189,7 +189,7 @@ void DemuxBaton::OpenVideoFile() {
 		if (img_convert_ctx == NULL) { error = "could not convert colorspace"; return; }
 	}
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)	
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(56,26,100)	
 	frame = av_frame_alloc();
 #else
 	frame = avcodec_alloc_frame();
@@ -212,7 +212,7 @@ int DemuxBaton::OpenCodecContext(int *stream_idx, AVFormatContext *fctx) {
 	*stream_idx = ret;
 	st = fctx->streams[*stream_idx];
 	// find decoder for the stream
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(56,26,100)
 	codec = avcodec_find_decoder(st->codecpar->codec_id);
 	if (!codec) { error = "failed to find codec"; return -1; };
 
@@ -253,7 +253,7 @@ void DemuxBaton::DecodeFrame() {
 			pkt.data += ret;
 			pkt.size -= ret;
 		} while (pkt.size > 0 && !got_frame);
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(56,26,100)
 		if (pkt.size <= 0) av_packet_unref(&orig_pkt);
 #else
 		if (pkt.size <= 0) av_free_packet(&orig_pkt);
@@ -273,7 +273,7 @@ int DemuxBaton::DecodePacket(int *got_frame, int cached) {
     int decoded = pkt.size;
     if (pkt.stream_index == video_stream_idx) {
 		// decode video frame
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(56,26,100)
 		ret = avcodec_send_packet(video_dec_ctx, &pkt);
 		if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
 			*got_frame = 0;
