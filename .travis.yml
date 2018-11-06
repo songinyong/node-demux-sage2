@@ -9,9 +9,9 @@ env:
   global:
     - secure: "S9+Eqi4RmwWMEKQmzwu3z3CT2XR0RMouxlEBz3rZ5u1OzTDhdqiBaLMbzWP6Mw29HT9W4nbWiWMYngSxPfPO3psatt4GWCToz37D9Z8DQMZ5PRwJFv2KUuwadzJA0RI77RSAiRL/dnzNkE9NRRK/adnIEyKZSruDBjYMKrNFf2TKOJTjwaFt+dkBUlFoXNS9WsjjkJGWD64B7z9/IgPuIdZlbhG0kzrTr+daE37yy+hgwQcLooqEy9rbrM45zdsBDfWjgXLXDdxHZ3fEaWtOVcFp+ywK9tRM362i8P2bRHSuX8whvNe/hdh370ShnOc4jyaktJZcswLJKPLFjVnnd66UZEi6PNzuZmthZTzx9r18ZPQ1f7BLs6CYg8yQhs9TIf9yz2BkiexSpAY7xmWyA/rmmbvaPZOi5i/Nso7b9XftqobcJzNa0yhXQ321uupvU9xBdcQYsGiFyiLxMgSrhAc0qXW6Gr1bM1BWzLBcGcAe+rQxei2wwrqRNpNAF40FLiatDpUB1L8WCKO93sxSNiZI1VqwqWSCh7VVcVQbKZ6X7/oYfS265LBEsGIrYtIJYXaMU2V5Y23MDoP8pyEFUpNTMvunIPOnoBAwE+zSmITTBornpFHArVNxXVi0hk+FXlw+nSNfA7R0TDsR7CpoTRkoOVkI9ECxiqjV9qd4tZQ="
   matrix:
-    - NODE_VERSION="8.9.4"
-    - NODE_VERSION="9.9.0"
-    - NODE_VERSION="10.9.0"
+    - NODE_VERSION="8.12.0"
+    - NODE_VERSION="9.11.2"
+    - NODE_VERSION="10.11.0"
     - NODE_VERSION="11.1.0"
 
 before_install:
@@ -30,13 +30,12 @@ install:
 
 script:
   - pwd
-  - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"build/stage/*.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
   - rm -fr build/stage/
   - mkdir /Users/travis/build/renambot-uic/Build
   - cd ..
   - rm -fr ./node-demux/.git
-  - tar czf /Users/travis/build/renambot-uic/Build/node-demux_mac_${NODE_VERSION}.tar.gz node-demux
+  - tar czf /Users/travis/build/renambot-uic/Build/node-demux_v1.1.0-node-v${NODE_VERSION}-darwin-x64.tar.gz node-demux/build/Release
   - cd Build
-  - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"node-demux_mac_${NODE_VERSION}.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
+  - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"node-demux_v1.1.0-node-v${NODE_VERSION}-darwin-x64.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
   - ls -a
 
