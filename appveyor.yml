@@ -1,4 +1,4 @@
-version: 1.0.{build}
+version: 1.1.0
 
 image: Visual Studio 2017
 
@@ -36,7 +36,6 @@ environment:
   - nodejs_version: 6.9.5
   - nodejs_version: 7.9.0
   - nodejs_version: 8.9.4
-  - nodejs_version: 9.8.0
   - nodejs_version: 9.9.0
   - nodejs_version: 10.9.0
 
@@ -67,14 +66,14 @@ after_build:
 - rmdir /Q /S ffmpeg-3.3.1-win64-shared
 - del /Q *.zip
 - mkdir C:\Build\
-- 7z a -ttar C:\Build\node-demux_win_%nodejs_version%.tar C:\projects\node-demux\
-- 7z a -tgzip C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\Build\node-demux_win_%nodejs_version%.tar
-- 7z a -ttar C:\Build\node_demux-v1.1.0-node-v%nodejs_version%-win32-x64.tar C:\projects\node-demux\build\Release
-- 7z a -tgzip C:\Build\node_demux-v1.1.0-node-v%nodejs_version%-win32-x64.tar.gz C:\Build\node_demux-v1.1.0-node-v%nodejs_version%-win32-x64.tar
-- move C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\projects\node-demux
-- move C:\Build\node_demux-v1.1.0-node-v%nodejs_version%-win32-x64.tar.gz C:\projects\node-demux
-- curl --insecure --progress-bar --location --fail --user "renambot:%BITBUCKET_PASSWORD%" --form files=@"node-demux_win_%nodejs_version%.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
-- curl --insecure --progress-bar --location --fail --user "renambot:%BITBUCKET_PASSWORD%" --form files=@"node_demux-v1.1.0-node-v%nodejs_version%-win32-x64.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
+#- 7z a -ttar  C:\Build\node-demux_win_%nodejs_version%.tar    C:\projects\node-demux\
+#- 7z a -tgzip C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\Build\node-demux_win_%nodejs_version%.tar
+- 7z a -ttar  C:\Build\node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar    C:\projects\node-demux\build\Release
+- 7z a -tgzip C:\Build\node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar.gz C:\Build\node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar
+#- move C:\Build\node-demux_win_%nodejs_version%.tar.gz C:\projects\node-demux
+- move C:\Build\node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar.gz C:\projects\node-demux
+#- curl --insecure --progress-bar --location --fail --user "renambot:%BITBUCKET_PASSWORD%" --form files=@"node-demux_win_%nodejs_version%.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
+- curl --insecure --progress-bar --location --fail --user "renambot:%BITBUCKET_PASSWORD%" --form files=@"node_demux-v%APPVEYOR_BUILD_VERSION%-node-v%nodejs_version%-win32-x64.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
 - dir
 
 test: off
