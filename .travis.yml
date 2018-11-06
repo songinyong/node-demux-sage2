@@ -34,8 +34,8 @@ script:
   - mkdir /Users/travis/build/renambot-uic/Build
   - cd ..
   - rm -fr ./node-demux/.git
-  - tar czf /Users/travis/build/renambot-uic/Build/node-demux-v1.1.0-node-v${NODE_VERSION}-darwin-x64.tar.gz node-demux/build/Release
+  - tar czf /Users/travis/build/renambot-uic/Build/node_demux-v1.1.0-node-v${NODE_VERSION}-darwin-x64.tar.gz node-demux/build/Release
   - cd Build
-  - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"node-demux_v1.1.0-node-v${NODE_VERSION}-darwin-x64.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
+  - curl --insecure --progress-bar --location --fail --user "renambot:$BITBUCKET_PASSWORD" --form files=@"node_demux-v1.1.0-node-v${NODE_VERSION}-darwin-x64.tar.gz" "https://api.bitbucket.org/2.0/repositories/sage2/binaries/downloads/"
   - ls -a
 
