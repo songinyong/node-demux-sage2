@@ -1,10 +1,10 @@
 #include <node.h>
 #include "node-videodemux.h"
 
-using namespace v8;
+using namespace Nan;
 
 
-Persistent<FunctionTemplate> VideoDemux::constructor;
+v8::Persistent<FunctionTemplate> VideoDemux::constructor;
 
 VideoDemux::VideoDemux() {
 	baton = new DemuxBaton();
@@ -31,8 +31,8 @@ NAN_MODULE_INIT(VideoDemux::Init) {
 	Nan::SetPrototypeMethod(tpl, "On",            On);
 	Nan::SetPrototypeMethod(tpl, "IsBusy",        IsBusy);
 	
-	//constructor.Reset(tpl->GetFunction());
-	Nan::Set(target, Nan::New<String>("VideoDemux").ToLocalChecked(), tpl->GetFunction());
+	// Nan::Set(target, Nan::New<String>("VideoDemux").ToLocalChecked(), tpl->GetFunction());
+	Nan::Set(target, Nan::New<String>("VideoDemux").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 
@@ -60,19 +60,23 @@ NAN_METHOD(VideoDemux::LoadVideo) {
 		info.GetReturnValue().Set(Nan::Undefined());
 	}
 	
-	bool dff = false;
-	std::string colorspace = "default";
-	if (info.Length() >= 2) {
-		Local<Object> obj = info[1]->ToObject();
-		if (obj->Has(Nan::New<String>("decodeFirstFrame").ToLocalChecked())) {
-			dff = obj->Get(Nan::New<String>("decodeFirstFrame").ToLocalChecked())->BooleanValue();
-		}
-		if (obj->Has(Nan::New<String>("colorspace").ToLocalChecked())) {
-			colorspace = *Nan::Utf8String(obj->Get(Nan::New<String>("colorspace").ToLocalChecked()));
-		}
-	}
+	bool dff = true;
+	std::string colorspace = "yuv420p";
+	// bool dff = false;
+	// std::string colorspace = "default";
+	// if (info.Length() >= 2) {
+		// Local<Object> obj = info[1]->ToObject();
+		// Local<Object> obj = Nan::To<v8::Object>(info[1]).ToLocalChecked();
+
+		// if (Nan::Has(obj, Nan::New<String>("decodeFirstFrame").ToLocalChecked())) {
+		// 	dff = obj->Get(Nan::New<String>("decodeFirstFrame").ToLocalChecked())->BooleanValue();
+		// }
+		// if (obj->Has(Nan::New<String>("colorspace").ToLocalChecked())) {
+		// 	colorspace = *Nan::Utf8String(obj->Get(Nan::New<String>("colorspace").ToLocalChecked()));
+		// }
+	// }
 	
-	VideoDemux *obj = ObjectWrap::Unwrap<VideoDemux>(info.This());
+	VideoDemux *obj = Nan::ObjectWrap::Unwrap<VideoDemux>(info.This());
 	obj->baton->action = DA_LOAD;
 	if(obj->baton->state == DS_IDLE) {
         obj->baton->state = DS_LOAD;
@@ -164,7 +168,9 @@ NAN_METHOD(VideoDemux::SeekVideo) {
 		info.GetReturnValue().Set(Nan::Undefined());
 	}
 	
-	double timestamp = info[0]->NumberValue();
+	// double timestamp = info[0]->NumberValue();
+	double timestamp = Nan::To<double>(info[0]).FromJust();
+
 	Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
 	
 	VideoDemux *obj = ObjectWrap::Unwrap<VideoDemux>(info.This());

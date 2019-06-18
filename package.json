@@ -24,7 +24,7 @@
     "host": "https://bitbucket.org/sage2/binaries/downloads/"
   },
   "devDependencies": {
-    "node-pre-gyp": "0.8.0",
+    "node-pre-gyp": "latest",
     "node-pre-gyp-github": "latest"
   },
   "keywords": [

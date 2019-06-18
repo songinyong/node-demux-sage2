@@ -17,7 +17,7 @@ extern "C" {
 
 
 
-class VideoDemux : public node::ObjectWrap {
+class VideoDemux : public Nan::ObjectWrap {
 	public:
 		static NAN_MODULE_INIT(Init);
 	
