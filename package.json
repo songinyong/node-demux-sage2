@@ -8,7 +8,7 @@
     "url": "git://github.com/renambot-uic/node-demux.git"
   },
   "dependencies": {
-    "nan": "2.12.1"
+    "nan": "2.15.0"
   },
   "scripts": {
     "preinstall": "npm install node-pre-gyp",
